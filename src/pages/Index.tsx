@@ -8,6 +8,69 @@ import { Card } from '@/components/ui/card';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState<'feed' | 'upload' | 'profile' | 'favorites' | 'search'>('feed');
+  const [selectedVideo, setSelectedVideo] = useState<File | null>(null);
+  const [description, setDescription] = useState('');
+  const [hashtags, setHashtags] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState<string | null>(null);
+
+  const handleVideoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedVideo(e.target.files[0]);
+      setUploadStatus(null);
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!selectedVideo) {
+      setUploadStatus('Выберите видео для загрузки');
+      return;
+    }
+
+    setUploading(true);
+    setUploadStatus('Загружаю видео...');
+
+    try {
+      const reader = new FileReader();
+      reader.readAsDataURL(selectedVideo);
+      
+      reader.onloadend = async () => {
+        const base64Video = reader.result as string;
+        
+        const response = await fetch('https://functions.poehali.dev/31742022-632b-4573-8705-502062534c76', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            video: base64Video,
+            description,
+            hashtags,
+            username: 'user1'
+          })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          setUploadStatus('✅ Видео успешно загружено!');
+          setSelectedVideo(null);
+          setDescription('');
+          setHashtags('');
+          setTimeout(() => {
+            setActiveTab('feed');
+            setUploadStatus(null);
+          }, 2000);
+        } else {
+          setUploadStatus('❌ Ошибка загрузки');
+        }
+      };
+    } catch (error) {
+      setUploadStatus('❌ Ошибка при загрузке видео');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const videoMocks = [
     { id: 1, username: 'user1', likes: 1200, comments: 45, views: 15000 },
@@ -156,20 +219,42 @@ const Index = () => {
                 accept="video/*"
                 className="hidden"
                 id="video-upload"
+                onChange={handleVideoSelect}
               />
               <label htmlFor="video-upload">
                 <Button asChild className="bg-gradient-to-r from-primary via-accent to-secondary text-white">
-                  <span>Выбрать файл</span>
+                  <span>{selectedVideo ? selectedVideo.name : 'Выбрать файл'}</span>
                 </Button>
               </label>
 
               <div className="w-full space-y-4">
-                <Input placeholder="Добавьте описание..." className="bg-background" />
-                <Input placeholder="Добавьте хештеги..." className="bg-background" />
+                <Input 
+                  placeholder="Добавьте описание..." 
+                  className="bg-background" 
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
+                <Input 
+                  placeholder="Добавьте хештеги..." 
+                  className="bg-background" 
+                  value={hashtags}
+                  onChange={(e) => setHashtags(e.target.value)}
+                />
               </div>
 
-              <Button className="w-full bg-gradient-to-r from-primary to-accent text-white" size="lg">
-                Опубликовать
+              {uploadStatus && (
+                <div className="w-full text-center p-3 bg-background rounded-lg">
+                  <p className="text-sm font-medium">{uploadStatus}</p>
+                </div>
+              )}
+
+              <Button 
+                className="w-full bg-gradient-to-r from-primary to-accent text-white" 
+                size="lg"
+                onClick={handleUpload}
+                disabled={uploading || !selectedVideo}
+              >
+                {uploading ? 'Загрузка...' : 'Опубликовать'}
               </Button>
             </div>
           </Card>
