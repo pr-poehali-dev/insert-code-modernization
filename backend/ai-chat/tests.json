@@ -1,0 +1,18 @@
+{
+  "tests": [
+    {
+      "name": "Test AI chat with message",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "message": "Привет"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "response": "string",
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

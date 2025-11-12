@@ -15,8 +15,6 @@ const AIChat = () => {
   const [isLoading, setIsLoading] = useState(false);
   const chatRef = useRef<HTMLDivElement>(null);
 
-  const DEEPSEEK_API_KEY = 'sk-bbd12f4f45e44c2194efaceed16b5ecb';
-
   useEffect(() => {
     if (chatRef.current) {
       chatRef.current.scrollTop = chatRef.current.scrollHeight;
