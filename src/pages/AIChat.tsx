@@ -46,20 +46,13 @@ const AIChat = () => {
 
   const getAIResponse = async (message: string): Promise<string> => {
     try {
-      const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      const response = await fetch('https://functions.poehali.dev/50ef5898-c576-4263-af93-d81b0d605348', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: "deepseek-chat",
-          messages: [{
-            role: "user",
-            content: message
-          }],
-          max_tokens: 1000,
-          temperature: 0.7
+          message: message
         })
       });
 
@@ -68,7 +61,7 @@ const AIChat = () => {
       }
 
       const data = await response.json();
-      return data.choices[0].message.content;
+      return data.response;
 
     } catch (error) {
       console.error('Ошибка:', error);
