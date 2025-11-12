@@ -46,10 +46,7 @@ const AIChat = () => {
 
   const getAIResponse = async (message: string): Promise<string> => {
     try {
-      const proxyUrl = 'https://api.allorigins.win/raw?url=';
-      const apiUrl = encodeURIComponent('https://api.deepseek.com/v1/chat/completions');
-      
-      const response = await fetch(proxyUrl + apiUrl, {
+      const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
